@@ -54,10 +54,12 @@ def test_get_todo_by_id_not_found():
 
 
 def test_create_todo_success():
-    initial_length = len(db.items)
+    initial_items = client.get("/list").json()["items"]
+    initial_length = len(initial_items)
     response = client.post("/item", json={"text": "New task"})
     assert response.status_code == 201
-    assert len(db.items) == initial_length + 1
+    new_items = client.get("/list").json()["items"]
+    assert len(new_items) == initial_length + 1
     assert response.json()["text"] == "New task"
 
 
@@ -84,11 +86,13 @@ def test_update_todo_not_found():
 
 
 def test_delete_todo_success():
-    initial_length = len(db.items)
+    initial_items = client.get("/list").json()["items"]
+    initial_length = len(initial_items)
     response = client.delete("/item/1")
     assert response.status_code == 200
     assert response.json() == {"message": "Todo item with id 1 deleted successfully"}
-    assert len(db.items) == initial_length - 1
+    new_items = client.get("/list").json()["items"]
+    assert len(new_items) == initial_length - 1
 
     response = client.get("/item/1")
     assert response.status_code == 404
